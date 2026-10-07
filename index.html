@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DC · UT1 · Targetes interactives</title>
+<style>
+  :root{
+    --bg:#f6f4fb;
+    --panel:#ffffff;
+    --ink:#20232a;
+    --muted:#68707d;
+    --accent:#6f4bf2;
+    --accent-2:#9d7cff;
+    --accent-soft:#eeeaff;
+    --ok:#1f8a70;
+    --ok-soft:#e7f7f1;
+    --line:#e8e5ef;
+    --shadow:0 14px 40px rgba(40,28,83,.10);
+    --shadow-hover:0 20px 50px rgba(40,28,83,.16);
+    --radius:24px;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;
+    font-family:Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background:
+      radial-gradient(circle at 10% 0%, rgba(157,124,255,.18), transparent 28%),
+      radial-gradient(circle at 90% 10%, rgba(111,75,242,.12), transparent 24%),
+      var(--bg);
+    color:var(--ink);
+  }
+  button{font:inherit}
+  .wrap{max-width:1120px;margin:auto;padding:30px 20px 60px}
+  .hero{
+    position:relative;
+    overflow:hidden;
+    background:linear-gradient(135deg,#24184b 0%, #4e329d 52%, #8067ec 100%);
+    color:white;
+    border-radius:32px;
+    padding:42px;
+    box-shadow:var(--shadow);
+  }
+  .hero:before,.hero:after{
+    content:"";
+    position:absolute;
+    border-radius:50%;
+    background:rgba(255,255,255,.09);
+    pointer-events:none;
+  }
+  .hero:before{width:280px;height:280px;right:-80px;top:-110px}
+  .hero:after{width:180px;height:180px;left:-60px;bottom:-90px}
+  .eyebrow{
+    display:inline-flex;align-items:center;gap:8px;
+    font-size:.82rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;
+    opacity:.88;
+  }
+  h1{font-size:clamp(2rem,5vw,4rem);line-height:1.02;margin:14px 0 12px;max-width:760px}
+  .hero p{font-size:1.05rem;line-height:1.6;max-width:760px;margin:0;color:rgba(255,255,255,.90)}
+  .hero-actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:26px}
+  .btn{
+    border:0;border-radius:999px;padding:12px 18px;font-weight:800;cursor:pointer;
+    transition:transform .2s ease, box-shadow .2s ease, background .2s ease;
+  }
+  .btn:hover{transform:translateY(-2px)}
+  .btn-primary{background:white;color:#2a1a60;box-shadow:0 10px 25px rgba(0,0,0,.14)}
+  .btn-ghost{background:rgba(255,255,255,.12);color:white;border:1px solid rgba(255,255,255,.20)}
+  .section{margin-top:24px}
+  .panel{
+    background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+    padding:22px;box-shadow:0 8px 24px rgba(40,28,83,.05)
+  }
+  .intro-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+  .info-card{padding:20px;border-radius:20px;background:#fbfaff;border:1px solid var(--line)}
+  .info-card h2{font-size:1.05rem;margin:0 0 8px}
+  .info-card p{margin:0;color:var(--muted);line-height:1.55}
+  .controls{
+    display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;
+    margin-bottom:18px
+  }
+  .filters{display:flex;flex-wrap:wrap;gap:8px}
+  .filter{
+    border:1px solid var(--line);background:white;color:var(--muted);
+    border-radius:999px;padding:8px 12px;font-weight:700;cursor:pointer
+  }
+  .filter.active{background:var(--accent-soft);color:var(--accent);border-color:#dcd3ff}
+  .stats{font-size:.92rem;color:var(--muted);font-weight:700}
+  .progress{height:8px;background:#eeeaf4;border-radius:999px;overflow:hidden;margin-bottom:20px}
+  .progress > span{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--accent),var(--accent-2));transition:width .25s ease}
+  .deck{
+    display:grid;grid-template-columns:repeat(3,1fr);gap:16px
+  }
+  .card-shell{perspective:1100px;min-height:300px}
+  .card{
+    position:relative;width:100%;height:100%;min-height:300px;
+    transform-style:preserve-3d;transition:transform .65s cubic-bezier(.2,.7,.2,1);
+    cursor:pointer
+  }
+  .card.flipped{transform:rotateY(180deg)}
+  .face{
+    position:absolute;inset:0;backface-visibility:hidden;
+    border-radius:24px;padding:22px;display:flex;flex-direction:column;
+    border:1px solid var(--line);box-shadow:var(--shadow);
+  }
+  .front{background:linear-gradient(180deg,#ffffff 0%,#fbf9ff 100%)}
+  .back{
+    transform:rotateY(180deg);
+    background:linear-gradient(180deg,#f4f0ff 0%,#fff 100%);
+    border-color:#dcd3ff
+  }
+  .tag{
+    display:inline-flex;align-self:flex-start;
+    padding:6px 10px;border-radius:999px;background:var(--accent-soft);color:var(--accent);
+    font-size:.72rem;font-weight:900;letter-spacing:.05em;text-transform:uppercase
+  }
+  .qnum{font-size:.8rem;font-weight:800;color:var(--muted);margin-top:14px}
+  .question{font-size:1.12rem;font-weight:850;line-height:1.35;margin:8px 0 0}
+  .answer{font-size:1rem;line-height:1.6;margin:16px 0 0}
+  .hint{
+    margin-top:auto;padding-top:18px;font-size:.85rem;color:var(--muted);font-weight:700
+  }
+  .back .hint{color:var(--ok)}
+  .deck-tools{
+    display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin-top:22px
+  }
+  .small-note{
+    text-align:center;color:var(--muted);font-size:.88rem;margin-top:12px
+  }
+  .challenge{
+    margin-top:26px;
+    background:#1f2430;color:white;border-radius:24px;padding:24px;
+  }
+  .challenge h2{margin:0 0 8px}
+  .challenge p{margin:0;color:#dfe3ed;line-height:1.6}
+  .challenge .prompt{
+    margin-top:16px;background:rgba(255,255,255,.07);padding:16px;border-radius:16px;
+    border:1px solid rgba(255,255,255,.09)
+  }
+  details{margin-top:14px}
+  summary{cursor:pointer;font-weight:800}
+  .footer{padding-top:26px;text-align:center;color:var(--muted);font-size:.84rem}
+  .kbd{display:inline-block;border:1px solid var(--line);background:#fff;border-radius:6px;padding:1px 6px;font-size:.78rem}
+  @media(max-width:900px){.deck{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:650px){
+    .wrap{padding:18px 14px 40px}
+    .hero{padding:30px 24px;border-radius:26px}
+    .intro-grid,.deck{grid-template-columns:1fr}
+    .card-shell,.card{min-height:280px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="hero">
+    <div class="eyebrow">DC · Desenvolupament comunitari · UT1</div>
+    <h1>🧩 Desbloqueja el desenvolupament comunitari</h1>
+    <p>Una baralla de targetes per recuperar conceptes, relacionar teories i comprovar fins a quin punt pots portar la teoria a la pràctica comunitària.</p>
+    <div class="hero-actions">
+      <button class="btn btn-primary" onclick="document.getElementById('activitat').scrollIntoView()">Començar les targetes →</button>
+      <button class="btn btn-ghost" onclick="shuffleCards()">🔀 Barreja el repte</button>
+    </div>
+  </header>
+
+  <section class="section intro-grid">
+    <div class="info-card">
+      <h2>🎯 Com funciona?</h2>
+      <p>Tria una categoria, llegeix la pregunta i prem la targeta per girar-la. La part posterior mostra una resposta de referència elaborada a partir de la UT1.</p>
+    </div>
+    <div class="info-card">
+      <h2>🧠 Estratègia</h2>
+      <p>Abans de girar-la, intenta respondre mentalment. Després compara la teva explicació amb la resposta i fixa't en les paraules clau.</p>
+    </div>
+  </section>
+
+  <section id="activitat" class="section panel">
+    <div class="controls">
+      <div class="filters" id="filters"></div>
+      <div class="stats" id="stats">0 / 28 targetes vistes</div>
+    </div>
+    <div class="progress"><span id="progressBar"></span></div>
+    <div class="deck" id="deck"></div>
+    <div class="deck-tools">
+      <button class="btn" style="background:#eeeaff;color:#6f4bf2" onclick="showAllAnswers()">👀 Veure totes les respostes</button>
+      <button class="btn" style="background:#f0f1f4;color:#3a404a" onclick="resetCards()">↺ Reiniciar</button>
+      <button class="btn" style="background:#1f2430;color:white" onclick="shuffleCards()">🔀 Barrejar targetes</button>
+    </div>
+    <div class="small-note">També pots fer clic a qualsevol targeta per girar-la.</div>
+  </section>
+
+  <section class="challenge">
+    <h2>🚀 Mini-repte de transferència</h2>
+    <p>No et quedis només amb la definició: pensa com actuaries com a professional de la promoció de la igualtat de gènere.</p>
+    <div class="prompt">
+      <strong>Situació:</strong> en un barri hi ha poques activitats de lleure per a adolescents i una part de les persones joves no se sent representada en les propostes existents.
+      <details>
+        <summary>Obri una possible resposta</summary>
+        <p style="margin-top:10px">Una resposta coherent amb el desenvolupament comunitari seria parlar amb les persones joves, famílies, associacions i professionals del barri i dissenyar conjuntament un espai d’oci inclusiu i segur. La clau és evitar portar una solució decidida des de fora i afavorir participació, inclusió, treball en xarxa i transformació social.</p>
+      </details>
+    </div>
+  </section>
+
+  <div class="footer">Material interactiu de repàs · Basat en la UT1 «El desenvolupament comunitari»</div>
+</div>
+
+<script>
+const cards = [
+  {cat:"Conceptes", q:"Què és el desenvolupament comunitari?", a:"És un procés col·lectiu en què les persones d’un barri, poble o ciutat s’organitzen i participen activament per millorar la seva qualitat de vida.", key:"Participació + organització + millora col·lectiva"},
+  {cat:"Conceptes", q:"Quines cinc idees clau defineixen el desenvolupament comunitari en la UT1?", a:"Participació activa; apoderament; inclusió i igualtat; treball en xarxa; transformació social.", key:"La comunitat és protagonista del canvi."},
+  {cat:"Conceptes", q:"Per què el desenvolupament comunitari no és simplement «ajudar» una comunitat?", a:"Perquè implica treballar amb la comunitat, reconeixent les seves necessitats, potencialitats i diversitats i fent-la part activa de les decisions.", key:"Amb la comunitat, no des de fora."},
+  {cat:"Ander-Egg", q:"Quin és l’objectiu del model de desenvolupament local?", a:"Potenciar els recursos propis d’un territori i treballar des de la comunitat amb participació activa.", key:"Recursos propis del territori"},
+  {cat:"Ander-Egg", q:"En què se centra l’acció social?", a:"En l’atenció de necessitats immediates i col·lectives, com poden ser campanyes contra la pobresa energètica o serveis d’urgència social.", key:"Resposta a necessitats immediates"},
+  {cat:"Ander-Egg", q:"Què caracteritza la planificació social?", a:"És una intervenció estructurada i a llarg termini, vinculada a polítiques públiques i a la planificació estratègica.", key:"Planificació + llarg termini"},
+  {cat:"Conflicte", q:"Com entén la teoria del conflicte les tensions socials?", a:"Les considera inevitables, però també poden convertir-se en un motor de canvi social.", key:"Conflicte → possible transformació"},
+  {cat:"Bandura", q:"Què és l’autoeficàcia segons Bandura?", a:"És la percepció de la pròpia capacitat per assolir fites. Influeix en la perseverança, la resiliència i la disposició a afrontar desafiaments.", key:"«Puc fer-ho» percebut"},
+  {cat:"Bandura", q:"Què pot afavorir una alta autoeficàcia en un procés comunitari?", a:"Pot incrementar la perseverança, la resiliència i la disposició a afrontar desafiaments. En l’àmbit comunitari, l’autoeficàcia col·lectiva pot fomentar la participació i la dinamització grupal.", key:"Creure que podem generar canvis"},
+  {cat:"Elkaim", q:"Com entén la teoria sistèmica i de xarxes socials la comunitat?", a:"Com un sistema d’interaccions entre persones, famílies, serveis, entitats i institucions.", key:"Tot està interconnectat"},
+  {cat:"Elkaim", q:"Què implica treballar comunitàriament des de la perspectiva d’Elkaim?", a:"Cal tenir en compte les relacions i les xarxes socials: qui està connectat amb qui, com circula la informació i on hi ha buits o desigualtats.", key:"Mirar les connexions, no només individus"},
+  {cat:"Marchioni", q:"Què és l’atomització dels grups segons Marchioni?", a:"És el procés pel qual els grups socials es fragmenten en unitats individuals aïllades, desconnectades d’un context comú i de la responsabilitat social col·lectiva.", key:"Fragmentació + aïllament"},
+  {cat:"Ander-Egg", q:"En quines fases defensa Ander-Egg la participació activa de la comunitat?", a:"En totes les fases del procés: diagnòstic, planificació, execució i avaluació.", key:"Participar durant tot el procés"},
+  {cat:"Ander-Egg", q:"Què significa que el desenvolupament comunitari ha de ser endogen?", a:"Que ha de néixer des de dins de la comunitat i no ser imposat des de fora per experts o institucions.", key:"Des de dins, no imposat"},
+  {cat:"Bronfenbrenner", q:"Quins són els cinc sistemes de la teoria ecològica?", a:"Microsistema, mesosistema, exosistema, macrosistema i cronosistema.", key:"De l’entorn immediat al temps històric"},
+  {cat:"Bronfenbrenner", q:"Què és el mesosistema?", a:"És el nivell que recull les relacions entre microsistemes, per exemple el vincle entre família i escola.", key:"Relacions entre entorns immediats"},
+  {cat:"Bronfenbrenner", q:"Quina diferència bàsica hi ha entre Bronfenbrenner i Ander-Egg?", a:"Bronfenbrenner proposa un model teòric que explica la interacció de sistemes en el desenvolupament humà; Ander-Egg planteja un enfocament pràctic i metodològic d’intervenció social per transformar comunitats.", key:"Teoria explicativa vs. enfocament d’intervenció"},
+  {cat:"Ciutat", q:"Què defensa Lefebvre amb el «dret a la ciutat»?", a:"El dret a reivindicar l’ús social de la ciutat segons les necessitats i els desitjos de la població, davant espais d’exclusió.", key:"Reivindicar l’ús social de la ciutat"},
+  {cat:"Ciutat", q:"Com completa Harvey la visió de Lefebvre?", a:"Assenyala com l’empresarització dels territoris i l’entrada del capital financer poden convertir la vida dels barris i els espais urbans en negocis turístics i immobiliaris i generar exclusió social.", key:"Capital + ciutat + exclusió"},
+  {cat:"Ciutat", q:"Per què és important generar espais de trobada per a dones des d’una perspectiva feminista?", a:"Perquè poden facilitar que s’expressin, generin xarxes de suport mutu i tinguin oportunitats de visibilització, especialment en col·lectius amb necessitats específiques.", key:"Veu + xarxa + visibilització"},
+  {cat:"IAP", q:"Què diferencia la IAP d’un estudi en què la comunitat és només objecte d’anàlisi?", a:"En la IAP, la comunitat és subjecte actiu: defineix problemes, busca solucions i avalua els resultats.", key:"La comunitat investiga i transforma"},
+  {cat:"IAP", q:"Quin cicle proposa la IAP tècnica de Kurt Lewin?", a:"Un cicle continu de planificació → acció → observació → reflexió → nova planificació.", key:"Acció-reflexió-acció"},
+  {cat:"IAP", q:"Quin és el tret distintiu de la IAP crítica i emancipadora de Carr i Kemmis?", a:"Va més enllà de millorar processos: busca transformar estructures socials i relacions de poder i afavorir l’emancipació, la justícia social i la igualtat.", key:"Transformació + poder + emancipació"},
+  {cat:"Metodologies", q:"Què és una diagnosi participativa?", a:"Un procés per detectar necessitats i fortaleses amb tècniques com mapes de recursos, enquestes, assemblees o tallers, procurant que hi participin persones diverses.", key:"Detectar necessitats amb la comunitat"},
+  {cat:"Metodologies", q:"Què significa col·laboració horitzontal en el treball en xarxa?", a:"Que serveis, entitats, associacions i col·lectius col·laboren sense que una part «mani»: tothom aporta.", key:"Coordinar-se sense jerarquia"},
+  {cat:"Metodologies", q:"En què es basa l’educació popular de Paulo Freire?", a:"En aprendre a partir de l’experiència de la gent i en combinar diàleg, reflexió crítica i acció col·lectiva per transformar la realitat.", key:"Diàleg + reflexió + acció"},
+  {cat:"Metodologies", q:"Quines metodologies creatives i participatives apareixen a la UT1?", a:"Teatre social, fotovoice, mapatge col·lectiu, jocs cooperatius i world café.", key:"Expressar i participar de formes diverses"},
+  {cat:"Síntesi", q:"Quin és el fil conductor dels models, teories i metodologies treballats a la UT1?", a:"La participació de la comunitat i el treball conjunt cap a la transformació social i la igualtat.", key:"Participació + transformació + igualtat"}
+];
+
+let activeCat = "Totes";
+let deckOrder = [...cards];
+const seen = new Set();
+
+function categories(){
+  return ["Totes", ...new Set(cards.map(c=>c.cat))];
+}
+function renderFilters(){
+  const el = document.getElementById("filters");
+  el.innerHTML = categories().map(c =>
+    `<button class="filter ${c===activeCat?'active':''}" onclick="setCategory('${c.replace(/'/g,"\\'")}')">${c}</button>`
+  ).join("");
+}
+function visibleCards(){
+  return deckOrder.filter(c=>activeCat==="Totes" || c.cat===activeCat);
+}
+function renderDeck(){
+  const items = visibleCards();
+  const deck = document.getElementById("deck");
+  deck.innerHTML = items.map((c,i)=>{
+    const realIndex = cards.indexOf(c);
+    return `
+      <div class="card-shell" data-index="${realIndex}">
+        <div class="card" onclick="flip(this)" tabindex="0" aria-label="Targeta ${realIndex+1}. Prem per girar-la">
+          <div class="face front">
+            <span class="tag">${c.cat}</span>
+            <div class="qnum">Targeta ${realIndex+1} · Pregunta</div>
+            <div class="question">${c.q}</div>
+            <div class="hint">↻ Prem per descobrir la resposta</div>
+          </div>
+          <div class="face back">
+            <span class="tag" style="background:#e7f7f1;color:#1f8a70">Resposta</span>
+            <div class="qnum">Idea clau</div>
+            <div class="answer">${c.a}</div>
+            <div class="hint">✓ ${c.key}</div>
+          </div>
+        </div>
+      </div>`;
+  }).join("");
+  updateStats();
+}
+function flip(card){
+  card.classList.toggle("flipped");
+  const idx = Number(card.parentElement.dataset.index);
+  if(card.classList.contains("flipped")) seen.add(idx);
+  updateStats();
+}
+function updateStats(){
+  const total = cards.length;
+  const n = seen.size;
+  document.getElementById("stats").textContent = `${n} / ${total} targetes vistes`;
+  document.getElementById("progressBar").style.width = `${(n/total)*100}%`;
+}
+function setCategory(cat){
+  activeCat = cat;
+  renderFilters();
+  renderDeck();
+}
+function shuffleCards(){
+  for(let i=deckOrder.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [deckOrder[i],deckOrder[j]]=[deckOrder[j],deckOrder[i]];
+  }
+  renderDeck();
+}
+function resetCards(){
+  seen.clear();
+  activeCat="Totes";
+  deckOrder=[...cards];
+  renderFilters();
+  renderDeck();
+}
+function showAllAnswers(){
+  document.querySelectorAll(".card").forEach(card=>{
+    card.classList.add("flipped");
+    const idx = Number(card.parentElement.dataset.index);
+    seen.add(idx);
+  });
+  updateStats();
+}
+document.addEventListener("keydown", e=>{
+  if((e.key==="Enter" || e.key===" ") && document.activeElement.classList.contains("card")){
+    e.preventDefault(); flip(document.activeElement);
+  }
+});
+renderFilters();
+renderDeck();
+</script>
+</body>
+</html>
